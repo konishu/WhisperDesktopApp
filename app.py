@@ -33,8 +33,8 @@ with st.sidebar:
 
 
 st.title("🎙️🎙️🎙️文字起こしアプリ🎙️🎙️🎙️")
+st.info("まずはファイルをアップロードしてください。")
 uploaded_file = st.file_uploader("Upload an article", type=["mp4","mp3"])
-st.info("📝処理が終われば、以下に結果が表示されます")
 
 
 result = pd.DataFrame(
@@ -45,14 +45,17 @@ def spacing():
     st.markdown("<br></br>", unsafe_allow_html=True)
 
 if uploaded_file is not None:
-  # デフォルトのtranscribeはファイル名を入力にする。そのためアップロードしたファイルを一時的に保存する
-    with NamedTemporaryFile(suffix="mp3") as temp:
-        temp.write(uploaded_file.getvalue())
-        temp.seek(0)
-        # st.audio(uploaded_file.getvalue(),start_time=2)
-        segments,info  = model.transcribe(temp.name,language='ja',beam_size=5)
-        for segment in segments:
-            result.loc[str(segment.id)] = [segment.start,segment.end,segment.text]
+    st.info("📝処理が終われば、以下に結果が表示されます")
+
+    with st.spinner('Wait for it...'):
+        # デフォルトのtranscribeはファイル名を入力にする。そのためアップロードしたファイルを一時的に保存する
+        with NamedTemporaryFile(suffix="mp3") as temp:
+            temp.write(uploaded_file.getvalue())
+            temp.seek(0)
+            # st.audio(uploaded_file.getvalue(),start_time=2)
+            segments,info  = model.transcribe(temp.name,language='ja',beam_size=5)
+            for segment in segments:
+                result.loc[str(segment.id)] = [segment.start,segment.end,segment.text]
 
 
     for i in range(len(result)):
@@ -75,7 +78,14 @@ if uploaded_file is not None:
     
 
 
-st.table(result)
+# st.table(result)
+
+
+
+
+
+
+
 
 
 
